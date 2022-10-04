@@ -2,6 +2,8 @@
 #include "formula.h"
 #include "test_runner_p.h"
 
+#include <limits>
+
 inline std::ostream& operator<<(std::ostream& output, Position pos) {
     return output << "(" << pos.row << ", " << pos.col << ")";
 }
@@ -24,9 +26,9 @@ inline std::ostream& operator<<(std::ostream& output, const CellInterface::Value
 }
 
 namespace {
-std::string ToString(FormulaError::Category category) {
-    return std::string(FormulaError(category).ToString());
-}
+// std::string ToString(FormulaError::Category category) {
+//     return std::string(FormulaError(category).ToString());
+// }
 
 void TestPositionAndStringConversion() {
     auto testSingle = [](Position pos, std::string_view str) {
@@ -155,13 +157,16 @@ void TestFormulaReferences() {
     };
 
     sheet->SetCell("A1"_pos, "1");
+
     ASSERT_EQUAL(evaluate("A1"), 1);
+
     sheet->SetCell("A2"_pos, "2");
     ASSERT_EQUAL(evaluate("A1+A2"), 3);
 
     // Тест на нули:
     sheet->SetCell("B3"_pos, "");
     ASSERT_EQUAL(evaluate("A1+B3"), 1);  // Ячейка с пустым текстом
+
     ASSERT_EQUAL(evaluate("A1+B1"), 1);  // Пустая ячейка
     ASSERT_EQUAL(evaluate("A1+E4"), 1);  // Ячейка за пределами таблицы
 }
@@ -250,7 +255,7 @@ void TestErrorDiv0() {
 void TestEmptyCellTreatedAsZero() {
     auto sheet = CreateSheet();
     sheet->SetCell("A1"_pos, "=B2");
-    ASSERT_EQUAL(sheet->GetCell("A1"_pos)->GetValue(), CellInterface::Value(0));
+    ASSERT_EQUAL(sheet->GetCell("A1"_pos)->GetValue(), CellInterface::Value(0.0));
 }
 
 void TestFormulaInvalidPosition() {
@@ -370,4 +375,5 @@ int main() {
     RUN_TEST(tr, TestCellReferences);
     RUN_TEST(tr, TestFormulaIncorrect);
     RUN_TEST(tr, TestCellCircularReferences);
+    return 0;
 }

@@ -10,27 +10,33 @@ class Sheet;
 
 class Cell : public CellInterface {
 public:
-    Cell(Sheet& sheet);
-    ~Cell();
+        Cell();
 
-    void Set(std::string text);
-    void Clear();
+        void Set(const std::string& text, const SheetInterface& sheet);
+        void Clear();
 
-    Value GetValue() const override;
-    std::string GetText() const override;
-    std::vector<Position> GetReferencedCells() const override;
+        Value GetValue() const override;
+        std::string GetText() const override;
+        std::vector<Position> GetReferencedCells() const override;
 
-    bool IsReferenced() const;
+        bool IsReferenced() const;
+        bool IsEmpty() const;
 
 private:
-    class Impl;
-    class EmptyImpl;
-    class TextImpl;
-    class FormulaImpl;
+        class Impl;
+        class EmptyImpl;
+        class TextImpl;
+        class FormulaImpl;
 
-    std::unique_ptr<Impl> impl_;
+        std::unique_ptr<Impl> impl_;
+};
 
-    // Добавьте поля и методы для связи с таблицей, проверки циклических 
-    // зависимостей, графа зависимостей и т. д.
-
+class Cell::Impl {
+public:
+  virtual Cell::Value GetValue() const = 0;
+  virtual std::string GetText() const  = 0;
+  virtual std::vector<Position> GetReferencedCells() const = 0;
+  virtual bool IsReferenced() const = 0;
+  virtual bool IsEmpty() const = 0;
+  virtual ~Impl() = default;
 };
